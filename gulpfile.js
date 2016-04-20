@@ -9,10 +9,11 @@
 var gulp = require('gulp');
 var sourcemaps = require('gulp-sourcemaps');
 var browserSync = require('browser-sync');
-
+var useref = require('gulp-useref');
 var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
-
+var gulpIf = require('gulp-if');
+var del = require('del');
+var runSequence = require('run-sequence');
 var postcss = require('gulp-postcss');
 var cssnano = require('cssnano');
 var autoprefixer = require('autoprefixer');
@@ -38,61 +39,28 @@ gulp.task('css', function(){
 	 	.pipe(sourcemaps.init())
 		.pipe(postcss(processors))
 		.pipe(sourcemaps.write())
-		.pipe(rename({suffix: '.min'}))
 		.pipe(gulp.dest("./app/css/"))
 		.pipe(browserSync.reload({
 	      stream: true
 	    }));
 });
 
-gulp.task('css-build', function(){
+/*
+|--------------------------------------------------------------------------
+| Concat and Minify CSS & JS
+|--------------------------------------------------------------------------
+*/
+
+gulp.task('useref', function() {
 	var processors = [
-		vars,
-        nested,
-        rucksack,
-        autoprefixer,
-        cssnano
+		cssnano
 	];
 
-	return gulp.src("./app/devcss/**/*.css")
-	 	.pipe(sourcemaps.init())
-		.pipe(postcss(processors))
-		.pipe(sourcemaps.write())
-		.pipe(rename({suffix: '.min'}))
-		.pipe(gulp.dest("./dist/css/"));
-});
-/*
-|--------------------------------------------------------------------------
-| JS
-|--------------------------------------------------------------------------
-*/
-
-gulp.task('js', function(){
-	return gulp.src('./app/devjs/**/*.js')
-	    .pipe(uglify())
-	    .pipe(rename({suffix: '.min'}))
-	    .pipe(gulp.dest('./app/js/'))
-	    .pipe(browserSync.reload({
-	      stream: true
-	    }));
-});
-
-gulp.task('js-build', function(){
-  return gulp.src('./app/js/**/*.js')
-    .pipe(uglify())
-    .pipe(rename({suffix: '.min'}))
-    .pipe(gulp.dest('./dist/js/'));
-});
-
-/*
-|--------------------------------------------------------------------------
-| HTML
-|--------------------------------------------------------------------------
-*/
-
-gulp.task('html', function(){
-  return gulp.src('./app/index.html')
-    .pipe(gulp.dest('./dist/'));
+	return gulp.src('app/*.html')
+		.pipe(useref())
+		.pipe(gulpIf('*.js', uglify()))
+		.pipe(gulpIf('*.css', postcss(processors)))
+		.pipe(gulp.dest('dist'));
 });
 
 
@@ -116,10 +84,40 @@ gulp.task('browserSync', function() {
 |--------------------------------------------------------------------------
 */
 
-gulp.task('watch', ['browserSync'], function(){
+gulp.task('watch', function(){
 	gulp.watch('app/devcss/**/*.css', ['css']); 
 	gulp.watch('app/*.html', browserSync.reload); 
-  	gulp.watch('app/devjs/**/*.js', ['js']); 
+  	gulp.watch('app/js/**/*.js', browserSync.reload); 
+});
+
+/*
+|--------------------------------------------------------------------------
+| Clean
+|--------------------------------------------------------------------------
+*/
+
+gulp.task('clean', function() {
+	return del.sync('dist').then(function(cb) {
+		return cache.clearAll(cb);
+	});
+})
+
+gulp.task('clean:dist', function() {
+	return del.sync(['dist/**/*', '!dist/images', '!dist/images/**/*']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Build
+|--------------------------------------------------------------------------
+*/
+
+gulp.task('build', function(callback) {
+  runSequence(
+    'clean:dist',
+    ['css', 'useref'],
+    callback
+  );
 });
 
 /*
@@ -128,4 +126,9 @@ gulp.task('watch', ['browserSync'], function(){
 |--------------------------------------------------------------------------
 */
 
-gulp.task("default", ["css-build", "js-build", "html"]);
+gulp.task('default', function(callback) {
+  runSequence(['css', 'browserSync', 'watch'],
+    callback
+  );
+});
+
