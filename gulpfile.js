@@ -9,11 +9,13 @@
 var gulp = require('gulp');
 var sourcemaps = require('gulp-sourcemaps');
 var browserSync = require('browser-sync');
+var csscomb = require('gulp-csscomb');
 var useref = require('gulp-useref');
 var uglify = require('gulp-uglify');
 var gulpIf = require('gulp-if');
 var del = require('del');
 var runSequence = require('run-sequence');
+// PostCSS plugins
 var postcss = require('gulp-postcss');
 var cssnano = require('cssnano');
 var autoprefixer = require('autoprefixer');
@@ -38,6 +40,7 @@ gulp.task('css', function(){
 	return gulp.src("./app/devcss/**/*.css")
 	 	.pipe(sourcemaps.init())
 		.pipe(postcss(processors))
+		.pipe(csscomb())
 		.pipe(sourcemaps.write())
 		.pipe(gulp.dest("./app/css/"))
 		.pipe(browserSync.reload({
@@ -71,11 +74,11 @@ gulp.task('useref', function() {
 */
 
 gulp.task('browserSync', function() {
-  browserSync.init({
-    server: {
-      baseDir: 'app'
-    },
-  })
+	browserSync.init({
+		server: {
+		  baseDir: 'app'
+		}
+	});
 });
 
 /*
@@ -113,11 +116,7 @@ gulp.task('clean:dist', function() {
 */
 
 gulp.task('build', function(callback) {
-  runSequence(
-    'clean:dist',
-    ['css', 'useref'],
-    callback
-  );
+	runSequence('clean:dist', ['css', 'useref'], callback);
 });
 
 /*
@@ -127,8 +126,6 @@ gulp.task('build', function(callback) {
 */
 
 gulp.task('default', function(callback) {
-  runSequence(['css', 'browserSync', 'watch'],
-    callback
-  );
+	runSequence(['css', 'browserSync', 'watch'], callback);
 });
 

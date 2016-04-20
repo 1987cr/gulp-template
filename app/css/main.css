@@ -1,15 +1,20 @@
-body{
-	background-color: #00afff;
+body
+{
+    background-color: #00afff;
 }
 
-button{
-	position: absolute;
-	top: 50%;
-	right: 0;
-	bottom: 0;
-	left: 50%;
-	height: 50px;
-	-webkit-transform: translate(-50%,-50%);
-	        transform: translate(-50%,-50%);
+button
+{
+    position: absolute;
+    top: 50%;
+    right: 0;
+    bottom: 0;
+    left: 50%;
+
+    height: 50px;
+
+    -webkit-transform: translate(-50%,-50%);
+            transform: translate(-50%,-50%);
 }
+
 /*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm1haW4uY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0NBQ0MsMEJBQTBCO0NBQzFCOztBQUVEO0NBQ0MsbUJBQStCO0NBQS9CLFNBQStCO0NBQS9CLFNBQStCO0NBQS9CLFVBQStCO0NBQS9CLFVBQStCO0NBQy9CLGFBQWE7Q0FDYix3Q0FBZ0M7U0FBaEMsZ0NBQWdDO0NBQ2hDIiwiZmlsZSI6Im1haW4uY3NzIiwic291cmNlc0NvbnRlbnQiOlsiYm9keXtcclxuXHRiYWNrZ3JvdW5kLWNvbG9yOiAjMDBhZmZmO1xyXG59XHJcblxyXG5idXR0b257XHJcblx0cG9zaXRpb246IGFic29sdXRlIDUwJSAwIDAgNTAlO1xyXG5cdGhlaWdodDogNTBweDtcclxuXHR0cmFuc2Zvcm06IHRyYW5zbGF0ZSgtNTAlLC01MCUpO1xyXG59Il0sInNvdXJjZVJvb3QiOiIvc291cmNlLyJ9 */
