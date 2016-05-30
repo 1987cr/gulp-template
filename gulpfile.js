@@ -8,6 +8,7 @@
 
 var gulp = require('gulp');
 var sourcemaps = require('gulp-sourcemaps');
+var plumber = require('gulp-plumber');
 var browserSync = require('browser-sync');
 var csscomb = require('gulp-csscomb');
 var useref = require('gulp-useref');
@@ -23,9 +24,24 @@ var cssnano = require('cssnano');
 var autoprefixer = require('autoprefixer');
 var rucksack = require('rucksack-css');
 var vars = require('postcss-simple-vars');
+var advancedvars =  require('postcss-advanced-variables');
 var nested = require('postcss-nested');
+var calc = require("postcss-calc");
 // Debug
 var gutil = require('gulp-util');
+var notify = require("gulp-notify");
+
+/*
+|--------------------------------------------------------------------------
+| Error Handler
+|--------------------------------------------------------------------------
+*/
+
+var onError = function (err) {
+  gutil.beep();
+  console.log(err);
+  this.emit('end');
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -33,23 +49,24 @@ var gutil = require('gulp-util');
 |--------------------------------------------------------------------------
 */
 
-gulp.task('css', ['uncss'], function(){
+gulp.task('css', function(){
 	var processors = [
 		vars,
-        nested,
-        rucksack,
-        autoprefixer
+		calc,
+		nested,
+		rucksack,
+		autoprefixer
 	];
 
 	return gulp.src("./app/devcss/**/*.css")
+		.pipe(plumber({ errorHandler: onError }))
 	 	.pipe(sourcemaps.init())
 		.pipe(postcss(processors))
 		.pipe(csscomb())
 		.pipe(sourcemaps.write())
 		.pipe(gulp.dest("./app/css/"))
-		.pipe(browserSync.reload({
-	      stream: true
-	    }));
+		.pipe(browserSync.reload({stream: true}))
+		.pipe(notify({ message: 'CSS task complete' }));
 });
 
 /*
@@ -59,11 +76,11 @@ gulp.task('css', ['uncss'], function(){
 */
 
 gulp.task('uncss', function(){
-	return gulp.src("./app/bower_components/bootstrap/dist/css/bootstrap.css")
+	return gulp.src("./app/devcss/main.css")
 		.pipe(uncss({
 			html: ['./app/index.html']
 		}))
-		.pipe(gulp.dest("./app/css/"))
+		.pipe(gulp.dest("./app/cssn/"))
 });
 
 /*
@@ -81,7 +98,8 @@ gulp.task('useref', function() {
 		.pipe(useref())
 		.pipe(gulpIf('*.js', uglify()))
         .pipe(gulpIf('*.css', postcss(processors)))
-		.pipe(gulp.dest('dist'));
+		.pipe(gulp.dest('dist'))
+		.pipe(notify({ message: 'USEREF task complete' }));
 });
 
 
@@ -107,7 +125,7 @@ gulp.task('browserSync', function() {
 
 gulp.task('watch', function(){
 	gulp.watch('app/devcss/**/*.css', ['css']); 
-	gulp.watch('app/*.html', ['uncss'], browserSync.reload); 
+	gulp.watch('app/*.html', browserSync.reload); 
   	gulp.watch('app/js/**/*.js', browserSync.reload); 
 });
 
@@ -124,7 +142,8 @@ gulp.task('images', function(){
 			progessive: true,
 			interlaced: true
 		}))
-		.pipe(gulp.dest('dist/images/'));
+		.pipe(gulp.dest('dist/images/'))
+		.pipe(notify({ message: 'IMAGES task complete' }));
 });
 
 /*
